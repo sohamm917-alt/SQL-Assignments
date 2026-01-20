@@ -1,0 +1,102 @@
+
+Question 1: Define Data Quality in the context of ETL pipelines. Why is it more than 
+just data cleaning? 
+● Definition: In ETL, Data Quality refers to the fitness of data for its intended purpose. 
+It ensures the data is accurate, complete, consistent, reliable, and timely for 
+downstream applications like reporting and analytics. 
+● Why it's more than cleaning: While cleaning focuses on fixing errors (like correcting 
+typos), Data Quality encompasses a broader set of activities including validation 
+against business rules, ensuring referential integrity, handling missing values 
+strategically, and monitoring data health over time. 
+
+
+Question 2: Explain why poor data quality leads to misleading dashboards and 
+incorrect decisions. Poor data quality (such as duplicate entries, incorrect values, or 
+missing fields) feeds inaccurate information into dashboards. Since decision-makers rely on 
+these visualizations to track KPIs and trends, flawed data can lead to: 
+● Overestimated Revenue: Duplicate sales transactions can artificially inflate reported 
+income. 
+● Incorrect Customer Insights: Inaccurate customer data can lead to ineffective 
+marketing strategies. 
+● Operational Failures: Decisions based on false inventory levels or supply chain 
+data can cause stockouts or overstocking. 
+
+
+Question 3: What is duplicate data? Explain three causes in ETL pipelines. 
+● Duplicate Data: Records that represent the same real-world entity or event more 
+than once in a dataset. 
+● Causes: 
+1. Multiple Source Systems: Merging data from different systems (e.g., CRM 
+and ERP) that both record the same customer or transaction. 
+2. System Glitches: Retries during the extraction process where the same 
+batch of data is pulled twice. 
+3. Human Error: Manual entry errors where the same record is keyed in 
+multiple times. 
+
+
+
+Question 4: Differentiate between exact, partial, and fuzzy duplicates. 
+● Exact Duplicates: All fields in two or more rows are identical (e.g., same Transaction 
+ID, Date, Amount, and Customer). 
+● Partial Duplicates: Some key fields are identical, but others differ (e.g., same 
+Customer ID and Transaction Date, but different Transaction IDs due to a system 
+retry). 
+● Fuzzy Duplicates: Records that are visually similar but not identical due to typos or 
+formatting differences (e.g., "Rahul Mehta" vs. "Rahul Mehtaa" or "IBM" vs. "I.B.M."). 
+
+
+
+Question 5: Why should data validation be performed during transformation rather 
+than after loading? Validation should happen during transformation (before loading) to 
+prevent "garbage in, garbage out". If invalid data is loaded into the data warehouse: 
+● It becomes expensive and complex to clean up later. 
+● It may corrupt existing historical data or aggregates. 
+● It ensures that only clean, reliable data reaches the end-users and BI tools. 
+
+
+
+Question 6: Explain how business rules help in validating data accuracy. Give an 
+example. 
+● Role: Business rules translate real-world business logic into data constraints. They 
+ensure the data makes sense in the context of the business operations. 
+● Example: A business rule might state "Transaction Date cannot be in the future" or 
+"Quantity must be greater than zero." If a record shows a sales date of 2050 or a 
+quantity of -5, the validation rule flags it as an error. 
+Practical Questions (Dataset Analysis) 
+
+
+
+Question 7: Write an SQL query on Sales_Transactions to list all duplicate keys and 
+their counts. The business key is defined as Customer_ID + Product_ID + 
+Txn_Date + Txn_Amount. The query groups by these columns and filters for counts 
+greater than 1. 
+SQL 
+SELECT  
+Customer_ID,  
+Product_ID,  
+Txn_Date,  
+Txn_Amount,  
+COUNT(*) as Duplicate_Count 
+FROM Sales_Transactions 
+GROUP BY Customer_ID, Product_ID, Txn_Date, Txn_Amount 
+HAVING COUNT(*) > 1; 
+Based on the provided dataset, transactions 201, 203, and 208 for Customer C101 are 
+duplicates. 
+
+
+
+Question 8: Enforcing Referential Integrity 
+● Scenario: Identify Customer_ID values in Sales_Transactions that do not exist 
+in the Customers_Master table. 
+● Analysis of Data: 
+○ Customers_Master contains: C101, C102, C103, C104. 
+○ Sales_Transactions contains: C101, C102, C103, C104, C105, C106. 
+○ Violations: C105 and C106 exist in transactions but are missing from the 
+master list. 
+● SQL Query to Detect Violations: 
+SQL 
+SELECT DISTINCT s.Customer_ID 
+FROM Sales_Transactions s 
+LEFT JOIN Customers_Master c ON s.Customer_ID = c.CustomerID 
+WHERE c.CustomerID IS NULL; 
+
